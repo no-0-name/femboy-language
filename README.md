@@ -120,18 +120,6 @@ Set `FEMBOY_GC_LOG=1` to print a line every time the garbage collector runs:
 FEMBOY_GC_LOG=1 ./femboy examples/test_gc_references.fmb
 ```
 
-## Running the tests
-
-```sh
-cd tests
-./run_tests.sh
-```
-
-The test runner builds the interpreter and runs every `.femboy` file under
-`tests/cases/`, comparing stdout and exit code against the matching
-`.expected` files. See [tests/README.md](tests/README.md) for details on
-adding new cases.
-
 ## Exit codes
 
 Femboy never crashes or calls `exit()` from inside the lexer, parser,
