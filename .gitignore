@@ -1,0 +1,16 @@
+# Build outputs
+/build/
+*.o
+*.obj
+*.exe
+
+# Test runner outputs
+/tests/build/
+/tests/*.actual
+
+# Editor / OS junk
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
