@@ -6,9 +6,6 @@ Thank you for your interest in contributing to Femboy! This document will help y
 
 We are committed to providing a welcoming and inclusive environment for everyone. Please be respectful and kind to others. Harassment, discrimination, or offensive behavior will not be tolerated.
 
----
-
-## Getting Started
 
 ### Prerequisites
 
