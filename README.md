@@ -1,7 +1,6 @@
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Language](https://img.shields.io/badge/language-C11-blue.svg)](https://en.wikipedia.org/wiki/C11_(C_standard_revision))
-[![Build](https://img.shields.io/badge/build-passing-brightgreen.svg)]()
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](http://makeapullrequest.com)
+[![Made with: ❤️](https://img.shields.io/badge/Made%20with-❤️-red.svg)]()
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Language: C11](https://img.shields.io/badge/Language-C-blue.svg)](https://en.wikipedia.org/wiki/C)
 
 # Femboy
 
