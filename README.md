@@ -40,7 +40,7 @@ afternoon.
 
 - Types: numbers (`double`), strings, booleans, `nil` (`empty_balls`), arrays
 - Variables: `insert_into x = 10;`
-- Arithmetic and logic: `+ - * / %`, `== != < > <= >=`, `&& || !`
+- Arithmetic and logic: `+ - * / % ++ --`, `== != < > <= >=`, `&& || !`
 - Control flow: `harder_if`/`or_im_gonna_cum`, `ride_until`, `femboy_hours (init; cond; step) { ... }`, `stop_riding`, `keep_riding`
 - Functions with recursion: `roleplay name(a, b) { ... cuming ...; }`
 - Arrays: literals `[1, 2, 3]`, indexing `a[i]`, `a[i] = x`, `len(a)`, `push(a, x)`
