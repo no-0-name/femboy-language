@@ -108,6 +108,8 @@ const char *token_type_name(FemboyTokType type) {
         case T_EMPTY_BALLS: return "'empty_balls'";
         case T_PLUS: return "'+'";
         case T_MINUS: return "'-'";
+        case T_INCREMENT: return "'++'";
+        case T_DECREMENT: return "'--'";
         case T_STAR: return "'*'";
         case T_SLASH: return "'/'";
         case T_PERCENT: return "'%'";
@@ -219,40 +221,126 @@ static FemboyStatus next_token(LexState *lx, Token *out, FemboyError *err) {
 
     advc(lx);
     switch (c) {
-        case '+': out->type = T_PLUS; return FEMBOY_OK;
-        case '-': out->type = T_MINUS; return FEMBOY_OK;
-        case '*': out->type = T_STAR; return FEMBOY_OK;
-        case '/': out->type = T_SLASH; return FEMBOY_OK;
-        case '%': out->type = T_PERCENT; return FEMBOY_OK;
-        case '(': out->type = T_LPAREN; return FEMBOY_OK;
-        case ')': out->type = T_RPAREN; return FEMBOY_OK;
-        case '{': out->type = T_LBRACE; return FEMBOY_OK;
-        case '}': out->type = T_RBRACE; return FEMBOY_OK;
-        case '[': out->type = T_LBRACKET; return FEMBOY_OK;
-        case ']': out->type = T_RBRACKET; return FEMBOY_OK;
-        case ',': out->type = T_COMMA; return FEMBOY_OK;
-        case ';': out->type = T_SEMI; return FEMBOY_OK;
-        case ':': out->type = T_COLON; return FEMBOY_OK;
+        case '+':
+            if (peekc(lx) == '+') {
+                advc(lx);
+                out->type = T_INCREMENT;
+                return FEMBOY_OK;
+            }
+            out->type = T_PLUS;
+            return FEMBOY_OK;
+
+        case '-':
+            if (peekc(lx) == '-') {
+                advc(lx);
+                out->type = T_DECREMENT;
+                return FEMBOY_OK;
+            }
+            out->type = T_MINUS;
+            return FEMBOY_OK;
+
+        case '*':
+            out->type = T_STAR;
+            return FEMBOY_OK;
+
+        case '/':
+            out->type = T_SLASH;
+            return FEMBOY_OK;
+
+        case '%':
+            out->type = T_PERCENT;
+            return FEMBOY_OK;
+
+        case '(':
+            out->type = T_LPAREN;
+            return FEMBOY_OK;
+
+        case ')':
+            out->type = T_RPAREN;
+            return FEMBOY_OK;
+
+        case '{':
+            out->type = T_LBRACE;
+            return FEMBOY_OK;
+
+        case '}':
+            out->type = T_RBRACE;
+            return FEMBOY_OK;
+
+        case '[':
+            out->type = T_LBRACKET;
+            return FEMBOY_OK;
+
+        case ']':
+            out->type = T_RBRACKET;
+            return FEMBOY_OK;
+
+        case ',':
+            out->type = T_COMMA;
+            return FEMBOY_OK;
+
+        case ';':
+            out->type = T_SEMI;
+            return FEMBOY_OK;
+
+        case ':':
+            out->type = T_COLON;
+            return FEMBOY_OK;
+
         case '=':
-            if (peekc(lx) == '=') { advc(lx); out->type = T_EQEQ; } else out->type = T_EQ;
+            if (peekc(lx) == '=') {
+                advc(lx);
+                out->type = T_EQEQ;
+            } else {
+                out->type = T_EQ;
+            }
             return FEMBOY_OK;
+
         case '!':
-            if (peekc(lx) == '=') { advc(lx); out->type = T_BANGEQ; } else out->type = T_BANG;
+            if (peekc(lx) == '=') {
+                advc(lx);
+                out->type = T_BANGEQ;
+            } else {
+                out->type = T_BANG;
+            }
             return FEMBOY_OK;
+
         case '<':
-            if (peekc(lx) == '=') { advc(lx); out->type = T_LE; } else out->type = T_LT;
+            if (peekc(lx) == '=') {
+                advc(lx);
+                out->type = T_LE;
+            } else {
+                out->type = T_LT;
+            }
             return FEMBOY_OK;
+
         case '>':
-            if (peekc(lx) == '=') { advc(lx); out->type = T_GE; } else out->type = T_GT;
+            if (peekc(lx) == '=') {
+                advc(lx);
+                out->type = T_GE;
+            } else {
+                out->type = T_GT;
+            }
             return FEMBOY_OK;
+
         case '&':
-            if (peekc(lx) == '&') { advc(lx); out->type = T_AND; return FEMBOY_OK; }
+            if (peekc(lx) == '&') {
+                advc(lx);
+                out->type = T_AND;
+                return FEMBOY_OK;
+            }
             return femboy_error_set(err, FEMBOY_ERR_LEX, out->line, start_col,
                                     "unexpected character '&' (did you mean '&&'?)");
+            
         case '|':
-            if (peekc(lx) == '|') { advc(lx); out->type = T_OR; return FEMBOY_OK; }
+            if (peekc(lx) == '|') {
+                advc(lx);
+                out->type = T_OR;
+                return FEMBOY_OK;
+            }
             return femboy_error_set(err, FEMBOY_ERR_LEX, out->line, start_col,
                                     "unexpected character '|' (did you mean '||'?)");
+            
         default:
             return femboy_error_set(err, FEMBOY_ERR_LEX, out->line, start_col,
                                     "unexpected character '%c'", c);

@@ -183,27 +183,47 @@ static Node *parse_postfix(ParserState *ps) {
     Node *expr = parse_primary(ps);
     if (ps->failed) { ast_free(expr); return NULL; }
 
-    while (check(ps, T_LBRACKET)) {
-        Token *br = advance(ps);
-        Node *idx_node = parse_expr(ps);
-        if (ps->failed) { ast_free(expr); ast_free(idx_node); return NULL; }
-        if (!expect(ps, T_RBRACKET, "']'")) { ast_free(expr); ast_free(idx_node); return NULL; }
+    while (true) {
+        if (check(ps, T_LBRACKET)) {
+            Token *br = advance(ps);
+            Node *idx_node = parse_expr(ps);
+            if (ps->failed) { ast_free(expr); ast_free(idx_node); return NULL; }
+            if (!expect(ps, T_RBRACKET, "']'")) { ast_free(expr); ast_free(idx_node); return NULL; }
 
-        Node *n = ast_new_node(N_INDEX_GET);
-        n->line = br->line;
-        n->left = expr;
-        n->right = idx_node;
-        expr = n;
+            Node *n = ast_new_node(N_INDEX_GET);
+            n->line = br->line;
+            n->left = expr;
+            n->right = idx_node;
+            expr = n;
+        } else if (check(ps, T_INCREMENT) || check(ps, T_DECREMENT)) {
+            Token *op = advance(ps);
+            Node *n = ast_new_node(op->type == T_INCREMENT ? N_INCREMENT : N_DECREMENT);  // постфиксные
+            n->line = op->line;
+            n->left = expr;
+            expr = n;
+        } else {
+            break;
+        }
     }
     return expr;
 }
 
 static Node *parse_unary(ParserState *ps) {
     if (ps->failed) return NULL;
-    if (check(ps, T_MINUS) || check(ps, T_BANG)) {
+    
+    if (check(ps, T_MINUS) || check(ps, T_BANG) || 
+        check(ps, T_INCREMENT) || check(ps, T_DECREMENT)) {
         Token *op = advance(ps);
-        Node *n = ast_new_node(N_UNOP);
-        n->op = op->type;
+        Node *n;
+        
+        if (op->type == T_INCREMENT) {
+            n = ast_new_node(N_PRE_INCREMENT);
+        } else if (op->type == T_DECREMENT) {
+            n = ast_new_node(N_PRE_DECREMENT);
+        } else {
+            n = ast_new_node(N_UNOP);
+            n->op = op->type;
+        }
         n->line = op->line;
         n->left = parse_unary(ps);
         if (ps->failed) { ast_free(n); return NULL; }

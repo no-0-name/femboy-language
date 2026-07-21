@@ -349,9 +349,96 @@ static void compile_expr(CompilerState *cs, Node *n) {
             chunk_emit_byte(cs->chunk, (uint8_t)n->nargs);
             break;
         }
-        default:
-            compile_fail(cs, n->line, "expected an expression during compilation");
+        
+    case N_INCREMENT:
+    case N_DECREMENT: {
+        if (n->left->type != N_VAR) {
+            compile_fail(cs, n->line, "++/-- can only be applied to variables");
             return;
+        }
+
+        const char *name = n->left->name;
+        int slot = cs->in_function ? resolve_local(cs, name) : -1;
+        bool is_local = (slot >= 0);
+
+        if (is_local) {
+            chunk_emit_byte(cs->chunk, OP_GET_LOCAL);
+            chunk_emit_u16(cs->chunk, (uint16_t)slot);
+            chunk_emit_byte(cs->chunk, OP_GET_LOCAL);
+            chunk_emit_u16(cs->chunk, (uint16_t)slot);
+        } else {
+            int idx = chunk_add_const_str(cs->chunk, name);
+            chunk_emit_byte(cs->chunk, OP_GET_GLOBAL);
+            chunk_emit_u16(cs->chunk, (uint16_t)idx);
+            chunk_emit_byte(cs->chunk, OP_GET_GLOBAL);
+            chunk_emit_u16(cs->chunk, (uint16_t)idx);
+        }
+
+        chunk_emit_byte(cs->chunk, OP_PUSH_NUM);
+        chunk_emit_u16(cs->chunk, chunk_add_const_num(cs->chunk, 1.0));
+        if (n->type == N_INCREMENT) {
+            chunk_emit_byte(cs->chunk, OP_ADD);
+        } else {
+            chunk_emit_byte(cs->chunk, OP_SUB);
+        }
+
+        if (is_local) {
+            chunk_emit_byte(cs->chunk, OP_SET_LOCAL);
+            chunk_emit_u16(cs->chunk, (uint16_t)slot);
+        } else {
+            int idx = chunk_add_const_str(cs->chunk, name);
+            chunk_emit_byte(cs->chunk, OP_SET_GLOBAL);
+            chunk_emit_u16(cs->chunk, (uint16_t)idx);
+        }
+
+        chunk_emit_byte(cs->chunk, OP_POP);
+
+        break;
+    }
+
+    case N_PRE_INCREMENT:
+    case N_PRE_DECREMENT: {
+        if (n->left->type != N_VAR) {
+            compile_fail(cs, n->line, "++/-- can only be applied to variables");
+            return;
+        }
+
+        const char *name = n->left->name;
+        int slot = cs->in_function ? resolve_local(cs, name) : -1;
+        bool is_local = (slot >= 0);
+
+        if (is_local) {
+            chunk_emit_byte(cs->chunk, OP_GET_LOCAL);
+            chunk_emit_u16(cs->chunk, (uint16_t)slot);
+        } else {
+            int idx = chunk_add_const_str(cs->chunk, name);
+            chunk_emit_byte(cs->chunk, OP_GET_GLOBAL);
+            chunk_emit_u16(cs->chunk, (uint16_t)idx);
+        }
+
+        chunk_emit_byte(cs->chunk, OP_PUSH_NUM);
+        chunk_emit_u16(cs->chunk, chunk_add_const_num(cs->chunk, 1.0));
+        if (n->type == N_PRE_INCREMENT) {
+            chunk_emit_byte(cs->chunk, OP_ADD);
+        } else {
+            chunk_emit_byte(cs->chunk, OP_SUB);
+        }
+
+        if (is_local) {
+            chunk_emit_byte(cs->chunk, OP_SET_LOCAL);
+            chunk_emit_u16(cs->chunk, (uint16_t)slot);
+        } else {
+            int idx = chunk_add_const_str(cs->chunk, name);
+            chunk_emit_byte(cs->chunk, OP_SET_GLOBAL);
+            chunk_emit_u16(cs->chunk, (uint16_t)idx);
+        }
+
+        break;
+    }
+    
+    default:
+        compile_fail(cs, n->line, "expected an expression during compilation");
+        return;
     }
 }
 
@@ -429,6 +516,7 @@ static void compile_node(CompilerState *cs, Node *n) {
             patch_jump(cs, elseJump);
             break;
         }
+
         case N_WHILE: {
             LoopContext loop = { .pending_breaks = NULL, .pending_continues = NULL, .enclosing = cs->loop, .handler_depth_at_start = cs->try_depth };
             cs->loop = &loop;

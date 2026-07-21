@@ -26,6 +26,8 @@ typedef enum {
     T_STAR, 
     T_SLASH, 
     T_PERCENT,
+    T_INCREMENT,
+    T_DECREMENT,
     T_EQ, T_EQEQ, T_BANG, T_BANGEQ,
     T_LT, T_LE, T_GT, T_GE,
     T_AND, T_OR,
